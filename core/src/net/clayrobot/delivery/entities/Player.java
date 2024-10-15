@@ -24,7 +24,7 @@ public class Player extends Entity {
 	private final float animationLength = 0.25f * (game.refreshRate / 60f);
 	private static final Texture idleTex = new Texture("drone/idle.png");
 	private static final Texture deadTex = new Texture("drone/off.png");
-	private final Sound helicopter = Gdx.audio.newSound(Gdx.files.internal("rotor.wav"));
+	private final Sound helicopter = Gdx.audio.newSound(Gdx.files.internal("rotor2.wav"));
 	private final boolean ENABLE_ARMS = true;
 	private static final Texture[] flight_frames = {
 		new Texture("drone/flight/1.png"),
@@ -71,6 +71,12 @@ public class Player extends Entity {
 	private float angleDifferenceRatio;
 	public Array<Fixture> fixturesTouching;
 	private float deltaTime;
+	public int holding = 0;
+	private final Sound cock = Gdx.audio.newSound(Gdx.files.internal("guncock2.wav"));
+	public static enum Arm {
+		RIGHT,
+		LEFT
+	}
 
 	public Player(float x, float y, boolean alive) {
 		fixturesTouching = new Array<>();
@@ -110,10 +116,10 @@ public class Player extends Entity {
 		float legScaleY = 0.86f;
 		game.dynamicBodyDef.position.set(x - x_offset, y - y_offset);
 		leftArm = game.activeWorld.createBody(game.dynamicBodyDef);
-		leftArm.setUserData(this);
+		leftArm.setUserData(Arm.LEFT);
 		game.dynamicBodyDef.position.set(x + x_offset, y - y_offset);
 		rightArm = game.activeWorld.createBody(game.dynamicBodyDef);
-		rightArm.setUserData(this);
+		rightArm.setUserData(Arm.RIGHT);
 		
 		PolygonShape armShape = new PolygonShape();
 		fixtureDef.shape = armShape;
@@ -290,6 +296,13 @@ public class Player extends Entity {
 		droneSprite.setRotation((float) Math.toDegrees(angle));
 		droneSprite.draw(game.batch);
 		if (drawDebugMark && alive) game.shapeDrawer.polygon(push.x, push.y, 6, 0.1f);
+	}
+	public void setHolding(int addr) {
+		cock.play();
+		holding = addr;
+	}
+	public void clearHolding() {
+		holding = 0;
 	}
 	public void kill() {
 		alive = false;

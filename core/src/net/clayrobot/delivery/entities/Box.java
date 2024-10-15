@@ -9,6 +9,7 @@ import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import net.clayrobot.delivery.Delivery;
+import java.util.UUID;
 
 public class Box extends Entity {
 	private final Body body;
@@ -33,7 +34,9 @@ public class Box extends Entity {
 	private int counter = game.random.nextInt(INTERVAL * 2);
 	public final int address;
 	private final float width, height;
-	private final Sound sound = Gdx.audio.newSound(Gdx.files.internal("fallclean.wav"));
+	public boolean held = false;
+	public final String uuid = UUID.randomUUID().toString();
+	private final Sound fallSound = Gdx.audio.newSound(Gdx.files.internal("fallclean.wav"));
 	public Box(float x, float y, float width, float height, float density, int address) {
 		this.address = address;
 		if (game.random.nextInt(2) == 1) boxSprite.flip(true, false);
@@ -64,7 +67,7 @@ public class Box extends Entity {
 	@Override
 	public void delete() {
 		game.activeWorld.destroyBody(body);
-		sound.dispose();
+		fallSound.dispose();
 	}
 	protected static void dispose() {
 		for (Texture texture : faces) {
@@ -81,12 +84,12 @@ public class Box extends Entity {
 		else if (counter == INTERVAL) frameSprite.setTexture(frameTex2);
 		counter++;
 		if (counter >= INTERVAL * 2) counter = 0;
-		if (body.getLinearVelocity().y < -1) {
-			if (playSound) sound.loop();
+		if (body.getLinearVelocity().y < -2.5f && !held) {
+			if (playSound) fallSound.play();
 			playSound = false;
 		}
 		else {
-			sound.stop();
+			fallSound.stop();
 			playSound = true;
 		}
 	}

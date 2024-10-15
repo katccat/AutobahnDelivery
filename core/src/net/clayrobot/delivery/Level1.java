@@ -34,7 +34,7 @@ public class Level implements Screen {
 	private Sprite backgroundSprite;
 	private OrthographicCamera camera;
 	
-	private Player player;
+	public Player player;
 	private Music music;
 	private final boolean ENABLE_MUSIC = false;
 	private int score;
@@ -129,7 +129,7 @@ public class Level implements Screen {
 		if (game.isPaused) game.resume();
 	}
 	private void setupVisuals() {
-		Texture worldTex = new Texture("level1creepy.png");
+		Texture worldTex = new Texture("level1sky.png");
 		worldTex.setAnisotropicFilter(0);
 		worldSprite = new Sprite(worldTex);
 		worldSprite.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
@@ -156,7 +156,6 @@ public class Level implements Screen {
 	}
 	public void incrementScore() {
 		score++;
-		System.out.println(score);
 	}
 	public void decrementScore() {
 		score--;

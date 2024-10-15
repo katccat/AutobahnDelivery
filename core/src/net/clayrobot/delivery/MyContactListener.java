@@ -7,9 +7,12 @@ import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
 import com.badlogic.gdx.utils.Array;
+import java.util.HashMap;
 import net.clayrobot.delivery.entities.Box;
 import net.clayrobot.delivery.entities.House;
 import net.clayrobot.delivery.entities.Player;
+
+import static net.clayrobot.delivery.entities.Player.Arm;
 public class MyContactListener implements ContactListener {
 	private Object object1;
 	private Object object2;
@@ -17,7 +20,7 @@ public class MyContactListener implements ContactListener {
 	private Fixture fixture2;
 	private Level level;
 	private Delivery game;
-	private final Sound sound = Gdx.audio.newSound(Gdx.files.internal("guncock2.wav"));
+	private HashMap<String, int[]> hashmap = new HashMap<>();
 	public MyContactListener(Level level) {
 		this.level = level;
 		game = Delivery.getGame();
@@ -58,29 +61,36 @@ public class MyContactListener implements ContactListener {
 		}
 	}
 	private void BoxPlayerAction(boolean beginContact, Box box, Fixture playerFixture) {
-		Player player = (Player) playerFixture.getBody().getUserData();
-		Array<Fixture> fixturesTouching = player.fixturesTouching;
-		int index = -1;
-		boolean matchFound = false;
-		for (int i = 0; i < fixturesTouching.size; i++) {
-			if (fixturesTouching.get(i).equals(playerFixture)) {
-				matchFound = true;
-				index = i;
-				break;
-			}
+		Arm side = (Arm) playerFixture.getBody().getUserData();
+		String uuid = box.uuid;
+		
+		if (beginContact && !hashmap.containsKey(uuid)) {
+			hashmap.put(uuid, new int[2]);
 		}
+		if (side == Arm.LEFT) {
+			hashmap.get(uuid)[0] += beginContact ? 1 : -1;
+		}
+		else if (side == Arm.RIGHT) {
+			hashmap.get(uuid)[1] += beginContact ? 1 : -1;
+		}
+		int[] LeftRight = hashmap.get(uuid);
+		
 		if (beginContact) {
-			if (!game.displayText.equals(String.valueOf(box.address))) {
-				game.displayText = String.valueOf(box.address);
-				sound.play();
+			if (LeftRight[0] > 0 && LeftRight[1] > 0) {
+				if (!box.held) {
+					game.displayText = String.valueOf(box.address);
+					level.player.setHolding(box.address);
+				}
+				box.held = true;
 			}
-			
-			if (!matchFound) fixturesTouching.add(playerFixture);
 		}
-		else {
-			if (matchFound) fixturesTouching.removeIndex(index);
-			if (fixturesTouching.isEmpty()) game.displayText = "";
-		}
+		else if (box.held) {
+			if (LeftRight[0] < 1 && LeftRight[1] < 1) {
+				game.displayText = "";
+				level.player.clearHolding();
+				box.held = false;
+			}
+		}		
 	}
 	@Override
 	public void beginContact (Contact contact) {
@@ -88,7 +98,7 @@ public class MyContactListener implements ContactListener {
 		if (testThenOrderPair(Box.class, House.class)) {
 			BoxHouseAction(true, (Box) object1, (House) object2);
 		}
-		else if (testThenOrderPair(Box.class, Player.class)) {
+		else if (testThenOrderPair(Box.class, Arm.class)) {
 			BoxPlayerAction(true, (Box) object1, fixture2);
 		}
 	}
@@ -98,7 +108,7 @@ public class MyContactListener implements ContactListener {
 		if (testThenOrderPair(Box.class, House.class)) {
 			BoxHouseAction(false, (Box) object1, (House) object2);
 		}
-		else if (testThenOrderPair(Box.class, Player.class)) {
+		else if (testThenOrderPair(Box.class, Arm.class)) {
 			BoxPlayerAction(false, (Box) object1, fixture2);
 		}
 	}

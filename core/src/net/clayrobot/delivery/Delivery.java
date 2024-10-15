@@ -69,7 +69,7 @@ public class Delivery extends Game {
 		camera = new OrthographicCamera();
 		batch = new PolygonSpriteBatch();
 		fgBatch = new SpriteBatch();
-		shapeDrawer = new ShapeDrawer(game.batch, new TextureRegion(new Texture("pixel.png")));
+		shapeDrawer = new ShapeDrawer(batch, new TextureRegion(new Texture("pixel.png")));
 		mapLoader = new TmxMapLoader();
 		FreeTypeFontGenerator generator = new FreeTypeFontGenerator(Gdx.files.internal("fonts/InstrumentSerif-Regular.ttf"));
 		FreeTypeFontParameter parameter = new FreeTypeFontParameter();
