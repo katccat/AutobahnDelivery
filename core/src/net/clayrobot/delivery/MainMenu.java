@@ -26,7 +26,7 @@ public class MainMenu implements Screen {
 		backgroundSprite.draw(game.batch);
 		//game.font.draw(game.batch, "Welcome to Autobahn Delivery Inc.", 0, 20);
 		//game.batch.end();
-		if (Gdx.input.isTouched()) game.setScreen(new Level(game));
+		if (Gdx.input.isTouched()) game.setScreen(new Level1(game));
 		dispose();
 	}
 	@Override

@@ -93,7 +93,7 @@ public class Delivery extends Game {
 		debugRenderer = new Box2DDebugRenderer();
 		
 		setupInputProcessor();
-		setScreen(new Level(this));
+		setScreen(new Level1(this));
 	}
 	private void setupInputProcessor() {
 		InputAdapter UiInputProcessor = new InputAdapter() {
@@ -111,7 +111,7 @@ public class Delivery extends Game {
 						//	level.start(true);
 						//}
 						screen.dispose();
-						setScreen(new Level(game));
+						setScreen(new Level1(game));
 						return true;
 					case 68:
 						drawDebug = !drawDebug;

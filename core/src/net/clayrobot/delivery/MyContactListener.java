@@ -18,10 +18,10 @@ public class MyContactListener implements ContactListener {
 	private Object object2;
 	private Fixture fixture1;
 	private Fixture fixture2;
-	private Level level;
+	private Level1 level;
 	private Delivery game;
 	private HashMap<String, int[]> hashmap = new HashMap<>();
-	public MyContactListener(Level level) {
+	public MyContactListener(Level1 level) {
 		this.level = level;
 		game = Delivery.getGame();
 	}
