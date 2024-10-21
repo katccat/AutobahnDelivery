@@ -1,4 +1,5 @@
 package net.clayrobot.delivery;
+import net.clayrobot.delivery.levels.Hills;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Screen;
 import com.badlogic.gdx.graphics.OrthographicCamera;
@@ -26,7 +27,7 @@ public class MainMenu implements Screen {
 		backgroundSprite.draw(game.batch);
 		//game.font.draw(game.batch, "Welcome to Autobahn Delivery Inc.", 0, 20);
 		//game.batch.end();
-		if (Gdx.input.isTouched()) game.setScreen(new Level1(game));
+		if (Gdx.input.isTouched()) game.setScreen(new Hills(game));
 		dispose();
 	}
 	@Override

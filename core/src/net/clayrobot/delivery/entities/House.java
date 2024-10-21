@@ -1,6 +1,5 @@
 package net.clayrobot.delivery.entities;
 
-import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.graphics.Color;
 import com.badlogic.gdx.graphics.Texture;
@@ -8,21 +7,21 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.maps.MapObject;
 import com.badlogic.gdx.maps.MapObjects;
 import com.badlogic.gdx.maps.objects.RectangleMapObject;
-import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.levels.Level;
 
 public class House extends Entity {
 	private final Body body;
 	private Color color = Color.ORANGE;
-	private final Vector2 position;
-	private final Rectangle RECTANGLE;
-	private final Texture houseTex = new Texture("house2.png");
-	private final Texture greenHouseTex = new Texture("green_house2.png");
+	private final Texture houseTex = new Texture("house/house.png");
 	private final Sprite houseSprite = new Sprite(houseTex);
+	private final Sprite checkSprite = new Sprite(new Texture("house/check.png"));
+	private final Texture greenHouseTex = new Texture("green_house2.png");
+	private final Sprite addressSprite = new Sprite(new Texture("house/check.png"));
 	private static int count = 0;
 	public final int address;
 	private static House[] houseAt;
@@ -32,7 +31,7 @@ public class House extends Entity {
 	private House(float x, float y, float width, float height, int address) {
 		this.address = address;
 		game.staticBodyDef.position.set(x, y + height / 2);
-		body = game.activeWorld.createBody(game.staticBodyDef);
+		body = Level.world.createBody(game.staticBodyDef);
 		
 		PolygonShape square = new PolygonShape();
 		square.setAsBox(width / 2, height / 2);
@@ -40,25 +39,34 @@ public class House extends Entity {
 		fixtureDef.isSensor = true;
 		body.setUserData(this);
 		body.createFixture(fixtureDef);
-		position = new Vector2(x, y);
-		RECTANGLE = new Rectangle(x - width / 2, y, width, height);
 		width *= 1.2f;
 		height *= 1.2f;
 		houseSprite.setBounds(x - width / 2, y - 0.3f, width, height);
+		
+		
+		addressSprite.setBounds(x - width / 2, y - 0.3f, width, height);
+		checkSprite.setTexture(new Texture("house/" + address + ".png"));
+		checkSprite.setBounds(x - width / 2, y - 0.3f, width, height);
+		update();
 	}
 	
 	@Override
 	public void draw(float deltaTime) {
 		houseSprite.draw(game.batch);
-		game.InstrumentSerif.draw(game.batch, String.valueOf(address), position.x - 2.51f, position.y + 10f);
-	}
-	public void update() {
+		//addressSprite.draw(game.batch);
+		checkSprite.draw(game.batch);
 		if (boxesHere >= boxesNeeded) {
+			addressSprite.draw(game.batch);
+		}
+	}
+	@Override
+	protected void update() {
+		/*if (boxesHere >= boxesNeeded) {
 			houseSprite.setTexture(greenHouseTex);
 		}
 		else {
 			houseSprite.setTexture(houseTex);
-		}
+		}*/
 	}
 	public void incrementScore() {
 		boxesHere++;
@@ -69,17 +77,17 @@ public class House extends Entity {
 		update();
 	}
 	@Override
-	public void delete() {
+	protected void delete() {
+		houseTex.dispose();
+		checkSprite.getTexture().dispose();
+		addressSprite.getTexture().dispose();
 		houseAt[address] = null;
-		game.activeWorld.destroyBody(body);
-	}
-	private void addBoxesNeeded() {
-		boxesNeeded++;
+		Level.world.destroyBody(body);
 	}
 	protected static int assignAddress() {
 		Delivery game = Delivery.getGame();
 		int address = game.random.nextInt(count) + 1;
-		houseAt[address].addBoxesNeeded();
+		houseAt[address].boxesNeeded++;
 		return address;
 	}
 	public static void spawn(MapObjects mapObjects) {
@@ -93,8 +101,14 @@ public class House extends Entity {
 	}
 	public static void spawn(int houseCount) {
 		count = houseCount;
+		houseAt = new House[count + 1];
 		for (int i = 0; i < count; i++) {
 			houseAt[i + 1] = new House(40 + 15 * i, 8, 10, 10, i + 1);
 		}
+	}
+	protected static void dispose() {
+		//for (int i = 1; i < addressTex.length; i++) {
+			//addressTex[i].dispose();
+		//}
 	}
 }

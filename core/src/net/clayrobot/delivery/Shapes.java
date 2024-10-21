@@ -4,6 +4,7 @@ import com.badlogic.gdx.math.Vector2;
 import java.util.HashMap;
 
 public class Shapes {
+	private Shapes() {}
 	private final static HashMap<String, Vector2[]> shapes = new HashMap<String, Vector2[]>();
 	private static final Vector2[] ROCK = {
 		new Vector2(1, 0.3f),

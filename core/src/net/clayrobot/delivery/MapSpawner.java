@@ -23,9 +23,7 @@ public class MapSpawner {
 	public MapSpawner(float terrainFriction) {
 		friction = terrainFriction;
 	}
-	public MapSpawner() {
-		
-	}
+	public MapSpawner() {}
 	public void TerrainSpawner(MapObjects terrainMapObjects, World world, BodyDef bodyDef) {
 		TerrainSpawner(terrainMapObjects, 1, world, bodyDef);
 	}

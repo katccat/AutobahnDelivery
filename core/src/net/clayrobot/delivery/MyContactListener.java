@@ -1,4 +1,5 @@
 package net.clayrobot.delivery;
+import net.clayrobot.delivery.levels.Level;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.physics.box2d.Contact;
@@ -18,17 +19,22 @@ public class MyContactListener implements ContactListener {
 	private Object object2;
 	private Fixture fixture1;
 	private Fixture fixture2;
-	private Level1 level;
+	private Level level;
 	private Delivery game;
 	private HashMap<String, int[]> hashmap = new HashMap<>();
-	public MyContactListener(Level1 level) {
+	public MyContactListener(Level level) {
 		this.level = level;
 		game = Delivery.getGame();
 	}
 	public boolean setObjects(Contact contact) {
-		object1 = contact.getFixtureA().getBody().getUserData();
+		try {
+			object1 = contact.getFixtureA().getBody().getUserData();
+			object2 = contact.getFixtureB().getBody().getUserData();
+		}
+		catch(NullPointerException a) {
+			return false;
+		}
 		fixture1 = contact.getFixtureA();
-		object2 = contact.getFixtureB().getBody().getUserData();
 		fixture2 = contact.getFixtureB();
 		if (object1 == null || object2 == null) return false;
 		return true;

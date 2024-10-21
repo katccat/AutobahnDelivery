@@ -10,6 +10,7 @@ import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import net.clayrobot.delivery.Delivery;
 import java.util.UUID;
+import net.clayrobot.delivery.levels.Level;
 
 public class Box extends Entity {
 	private final Body body;
@@ -23,7 +24,6 @@ public class Box extends Entity {
 	private final Sprite frameSprite = new Sprite(frameTex1);
 	private Vector2 position;
 	
-	public static boolean drawDebug = false;
 	private static final float MIN_WIDTH = 1f;
 	private static final float MIN_HEIGHT = 0.8f;
 	private static final float MAX_WIDTH = 2f;
@@ -44,7 +44,7 @@ public class Box extends Entity {
 		this.height = height;
 		position = new Vector2(x, y);
 		game.dynamicBodyDef.position.set(x, y);
-		body = game.activeWorld.createBody(game.dynamicBodyDef);
+		body = Level.world.createBody(game.dynamicBodyDef);
 		body.setUserData(this);
 		PolygonShape square = new PolygonShape();
 		square.setAsBox(this.width / 2, this.height / 2);
@@ -66,7 +66,7 @@ public class Box extends Entity {
 	}
 	@Override
 	public void delete() {
-		game.activeWorld.destroyBody(body);
+		Level.world.destroyBody(body);
 		fallSound.dispose();
 	}
 	protected static void dispose() {
