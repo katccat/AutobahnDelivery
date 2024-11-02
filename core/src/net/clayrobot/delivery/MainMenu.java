@@ -7,10 +7,10 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.utils.ScreenUtils;
 public class MainMenu implements Screen {
-	private final Delivery game;
+	private final AutobahnDelivery game;
 	private OrthographicCamera camera;
 	private Sprite backgroundSprite;
-	public MainMenu(Delivery game) {
+	public MainMenu(AutobahnDelivery game) {
 		this.game = game;
 		camera = new OrthographicCamera();
 		backgroundSprite = new Sprite(new Texture("new2.png"));

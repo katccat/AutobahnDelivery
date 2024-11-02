@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="40" height="24" tilewidth="20" tileheight="20" infinite="0" nextlayerid="6" nextobjectid="59">
+<map version="1.10" tiledversion="1.11.0" orientation="orthogonal" renderorder="right-down" width="40" height="24" tilewidth="20" tileheight="20" infinite="0" nextlayerid="8" nextobjectid="62">
  <layer id="1" name="Tile Layer 1" width="40" height="24">
   <data encoding="csv">
 0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,
@@ -30,7 +30,7 @@
  </layer>
  <objectgroup id="4" name="Terrain">
   <object id="6" x="0.116539" y="451.123">
-   <polygon points="-0.116539,-1.12344 102.163,-1.82881 117.901,1.9198 146.423,27.859 -0.116539,28.8766"/>
+   <polygon points="-0.116539,-1.12344 102.163,-1.82881 117.901,1.9198 146.584,28.6652 -0.116539,28.8766"/>
   </object>
   <object id="8" x="798.521" y="324.745">
    <polygon points="1.47888,0.255374 -44.2141,2.66809 -66.7022,20.9636 -73.8603,78.7415"/>
@@ -152,11 +152,10 @@
   <object id="52" x="246.53" y="114.79">
    <polygon points="0.744509,-0.123494 -11.6851,12.1068 -14.6199,0.481974"/>
   </object>
-  <object id="54" x="94.1846" y="606.724">
-   <polygon points="-62.0077,-1.67588 312.022,-2.63854 132.516,72.2812"/>
-  </object>
-  <object id="57" x="-17.1692" y="-42.0724" width="17.0532" height="492.763"/>
-  <object id="58" x="800.746" y="-54.3773" width="15.5561" height="380.118"/>
+  <object id="57" x="-17.1692" y="-7.34641" width="17.0532" height="458.037"/>
+  <object id="58" x="800.746" y="-9.5229" width="15.5561" height="335.264"/>
+  <object id="59" x="147.381" y="476.759" width="111.999" height="25.5988"/>
+  <object id="60" x="0.504954" y="-16.9533" width="800.055" height="16.2738"/>
  </objectgroup>
  <objectgroup id="3" name="Houses">
   <object id="1" type="House" x="298.367" y="390.565" width="40" height="40"/>
@@ -181,5 +180,10 @@
    </properties>
   </object>
   <object id="55" x="423.852" y="436.794" width="39.4733" height="39.7968"/>
+ </objectgroup>
+ <objectgroup id="7" name="Kill">
+  <object id="61" x="256.468" y="479.361">
+   <polygon points="2.53929,0 12.9786,-25.1107 -133.454,-23.5488 -109.189,-0.51193"/>
+  </object>
  </objectgroup>
 </map>

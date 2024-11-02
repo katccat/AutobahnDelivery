@@ -8,7 +8,7 @@ import com.badlogic.gdx.math.Vector2;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.AutobahnDelivery;
 import java.util.UUID;
 import net.clayrobot.delivery.levels.Level;
 
@@ -24,13 +24,13 @@ public class Box extends Entity {
 	private final Sprite frameSprite = new Sprite(frameTex1);
 	private Vector2 position;
 	
-	private static final float MIN_WIDTH = 1f;
-	private static final float MIN_HEIGHT = 0.8f;
-	private static final float MAX_WIDTH = 2f;
-	private static final float MAX_HEIGHT = 2.8f;
-	private static final float MAX_MASS = 0.79f;
+	private static final float MIN_WIDTH = 1.2f;
+	private static final float MIN_HEIGHT = MIN_WIDTH;
+	private static final float MAX_WIDTH = 2.2f;
+	private static final float MAX_HEIGHT = MAX_WIDTH;
+	private static final float MAX_MASS = 0.75f;
 	private static final float MIN_MASS = 0.3f;
-	private final int INTERVAL = (int) (8 * (game.refreshRate / 60f));
+	private final int INTERVAL = (int) (16 * (game.refreshRate / 60f));
 	private int counter = game.random.nextInt(INTERVAL * 2);
 	public final int address;
 	private final float width, height;
@@ -51,7 +51,7 @@ public class Box extends Entity {
 		FixtureDef fixtureDef = new FixtureDef();
 		fixtureDef.shape = square;
 		fixtureDef.density = density;
-		fixtureDef.friction = 0.75f;
+		fixtureDef.friction = 0.78f;
 		fixtureDef.restitution = 0.22f;
 
 // Create our fixture and attach it to the body
@@ -107,24 +107,28 @@ public class Box extends Entity {
 		frameSprite.draw(game.batch);
 		//if (drawDebug) font4.draw(batch, String.valueOf(address), position.x - 0.5f, position.y + 1);
 	}
-	public static void spawn(int x, int y, int amount) {
-		Delivery game = Delivery.getGame();
-		float boxX, boxY;
-		float boxWidth, boxHeight;
-		float boxVolume;
-		float maxDensity;
-		float minDensity;
-		float boxDensity;
+	public static void spawn(int spawnX, int spawnY, int amount) {
+		final AutobahnDelivery game = AutobahnDelivery.getGame();
+		float x, y;
+		float width, height;
+		float area;
+		float density;
+		float maxDensity, minDensity;
 		for (int i = 0; i < amount; i++) {
-			boxWidth = game.random.nextFloat() * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
-			boxHeight = game.random.nextFloat() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
-			boxVolume = boxWidth * boxHeight;
-			maxDensity = MAX_MASS / boxVolume;
-			minDensity = MIN_MASS / boxVolume;
-			boxDensity = game.random.nextFloat() * (maxDensity - minDensity) + minDensity;
-			boxX = game.random.nextFloat() * 14 + (x - 7);
-			boxY = (float) y + boxHeight / 2f;
-			new Box(boxX, boxY, boxWidth, boxHeight, boxDensity, House.assignAddress());
+			width = game.random.nextFloat() * (MAX_WIDTH - MIN_WIDTH) + MIN_WIDTH;
+			height = game.random.nextFloat() * (MAX_HEIGHT - MIN_HEIGHT) + MIN_HEIGHT;
+			if (height > width) {
+				float temp = height;
+				height = width;
+				width = temp;
+			}
+			area = width * height;
+			maxDensity = MAX_MASS / area;
+			minDensity = MIN_MASS / area;
+			density = game.random.nextFloat() * (maxDensity - minDensity) + minDensity;
+			x = game.random.nextFloat() * 14 + (spawnX - 7);
+			y = (float) spawnY + height / 2f;
+			new Box(x, y, width, height, density, House.assignAddress());
 		}
 	}
 }

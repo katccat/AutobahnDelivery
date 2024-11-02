@@ -42,7 +42,8 @@ public class MapSpawner {
 				polygon.setPosition(polygon.getX() * scale, polygon.getY() * scale);
 				polygon.setScale(scale, scale);
 				terrainShape.set(polygon.getTransformedVertices());
-			} else if (mapObject instanceof RectangleMapObject) {
+			}
+			else if (mapObject instanceof RectangleMapObject) {
 				Rectangle rectangle = ((RectangleMapObject) mapObject).getRectangle();
 				rectangle.setPosition(rectangle.getX() * scale + rectangle.getWidth() * scale / 2, rectangle.getY() * scale + rectangle.getHeight() * scale / 2);
 				Vector2 newPosition = new Vector2();

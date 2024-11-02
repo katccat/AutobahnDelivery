@@ -19,7 +19,7 @@ public class DrawTools {
 	private static final Color DEFAULT_COLOR = Color.WHITE;
 
 	public static void fillBody(Body body, Color color) {
-		Delivery game = Delivery.getGame();
+		AutobahnDelivery game = AutobahnDelivery.getGame();
 		fixtureList = body.getFixtureList();
 		currentTransform = body.getTransform();
 		game.shapeDrawer.setColor(color);

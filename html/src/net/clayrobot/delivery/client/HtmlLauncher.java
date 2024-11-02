@@ -5,7 +5,7 @@ import com.badlogic.gdx.backends.gwt.GwtApplication;
 import com.badlogic.gdx.backends.gwt.GwtApplicationConfiguration;
 import com.badlogic.gdx.graphics.g2d.freetype.gwt.FreetypeInjector;
 import com.badlogic.gdx.graphics.g2d.freetype.gwt.inject.OnCompletion;
-import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.AutobahnDelivery;
 
 public class HtmlLauncher extends GwtApplication {
 
@@ -20,7 +20,7 @@ public class HtmlLauncher extends GwtApplication {
 
     @Override
     public ApplicationListener createApplicationListener () {
-        return new Delivery();
+        return new AutobahnDelivery();
     }
 		
 	@Override

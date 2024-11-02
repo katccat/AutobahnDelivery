@@ -1,14 +1,14 @@
 package net.clayrobot.delivery.entities;
 
-import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.AutobahnDelivery;
 import static net.clayrobot.delivery.entities.Entities.entities;
 
 abstract class Entity {
 	
-	protected Delivery game;
+	protected AutobahnDelivery game;
 	public Entity() {
 		entities.add(this);
-		game = Delivery.getGame();
+		game = AutobahnDelivery.getGame();
 	}
 	protected void draw(float deltaTime) {
 		if (deltaTime > 0) this.update();

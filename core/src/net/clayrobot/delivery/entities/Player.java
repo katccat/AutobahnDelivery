@@ -15,14 +15,13 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJoint;
 import com.badlogic.gdx.physics.box2d.joints.RevoluteJointDef;
 import com.badlogic.gdx.utils.Array;
-import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.AutobahnDelivery;
 import net.clayrobot.delivery.Shapes;
 import static net.clayrobot.delivery.DrawTools.fillBody;
 import net.clayrobot.delivery.levels.Level;
+import com.badlogic.gdx.graphics.g2d.Animation;
 
 public class Player extends Entity {
-	private int frame = 0;
-	private static final float ANIM_LENGTH = 0.25f * (Delivery.getGame().refreshRate / 60f);
 	private static final Texture idleTex = new Texture("drone/idle.png");
 	private static final Texture deadTex = new Texture("drone/off.png");
 	private final Sound helicopter = Gdx.audio.newSound(Gdx.files.internal("rotor2.wav"));
@@ -32,13 +31,10 @@ public class Player extends Entity {
 		new Texture("drone/flight/2.png"),
 		new Texture("drone/flight/3.png"),
 		new Texture("drone/flight/4.png"),
-		new Texture("drone/flight/5.png"),
-		//new Texture("drone/flight/6.png"),
-		//new Texture("drone/flight/7.png"),
-		//new Texture("drone/flight/8.png"),
-		//new Texture("drone/flight/9.png"),
-		//new Texture("drone/flight/10.png")
+		new Texture("drone/flight/5.png")
 	};
+	private float stateTime = 0;
+	private final Animation<Texture> anim;
 	private final Sprite droneSprite = new Sprite(idleTex);
 	private final Body body;
 	private Body leftArm;
@@ -52,7 +48,7 @@ public class Player extends Entity {
 	private final float RETRACT_SPEED = 1;
 	private final float MAX_TORQUE = 250;
 	private final float GRIP_THRESHOLD = 99;
-	private final float RELEASE_THRESHOLD = 4;
+	private final float RELEASE_THRESHOLD = 1;
 	private final float TILT_IMPULSE = 18f;
 	private final float THRUST_IMPULSE = 50;
 	private boolean alive = true;
@@ -62,7 +58,7 @@ public class Player extends Entity {
 	private boolean clawing = false;
 	private boolean tiltingLeft = false;
 	private boolean tiltingRight = false;
-	private boolean autoClaw = false;
+	private boolean autoClaw = true;
 	private final Vector2 impulseVector = new Vector2();
 	private final Vector2 forceVector = new Vector2();
 	private final Vector2 push = new Vector2(0, 0);
@@ -76,10 +72,17 @@ public class Player extends Entity {
 		RIGHT,
 		LEFT
 	}
+	public static enum ArmType {
+		RECTANGLE,
+		CLAW1
+	}
+	public static ArmType EnabledArmType = ArmType.RECTANGLE;
 	public Player() {
 		this(spawn.x, spawn.y, true);
 	}
 	public Player(float x, float y, boolean alive) {
+		anim = new Animation<>(0.05f, flight_frames);
+		anim.setPlayMode(Animation.PlayMode.LOOP);
 		this.alive = alive;
 		pos = new Vector2(x, y);
 		game.dynamicBodyDef.position.set(x, y);
@@ -105,15 +108,18 @@ public class Player extends Entity {
 		//body.setUserData(this);
 		circle.dispose();
 		square.dispose();
-		if (ENABLE_ARMS) setupArms(x, y, 0);
+		if (ENABLE_ARMS) setupArms(x, y, EnabledArmType);
 		updateState(true);
 		
 	}
-	private void setupArms(float x, float y, int type) {
-		float x_offset = 1;
-		float y_offset = 1.2f;
-		float legScaleX = 0.45f;
-		float legScaleY = 0.86f;
+	private void setupArms(float x, float y, ArmType armType) {
+		float x_offset = 1f;
+		//float y_offset = 1.2f;
+		float y_offset = 1f;
+		//float legScaleX = 0.45f;
+		//float legScaleY = 0.86f;
+		float legScaleX = 0.42f;
+		float legScaleY = 0.75f;
 		game.dynamicBodyDef.position.set(x - x_offset, y - y_offset);
 		leftArm = Level.world.createBody(game.dynamicBodyDef);
 		leftArm.setUserData(Arm.LEFT);
@@ -123,16 +129,16 @@ public class Player extends Entity {
 		
 		PolygonShape armShape = new PolygonShape();
 		fixtureDef.shape = armShape;
-		fixtureDef.friction = 0.9f;
-		fixtureDef.restitution = 0.2f;
-		if (type == 0) {
+		fixtureDef.friction = 0.95f;
+		fixtureDef.restitution = 0.18f;
+		if (armType == ArmType.RECTANGLE) {
 			fixtureDef.density = 0.6f;
 			armShape.setAsBox(0.15f, 0.5f);
 			leftArm.createFixture(fixtureDef);
 			rightArm.createFixture(fixtureDef);
 		}
-		else if (type == 1) {
-			fixtureDef.density = 0.4f;
+		else if (armType == ArmType.CLAW1) {
+			fixtureDef.density = 0.5f;
 			armShape.set(Shapes.get("LEFT_ARM_TOP", legScaleX, legScaleY));
 			leftArm.createFixture(fixtureDef);
 			armShape.set(Shapes.get("LEFT_ARM_BOTTOM", legScaleX, legScaleY));
@@ -147,13 +153,15 @@ public class Player extends Entity {
 		RevoluteJointDef clawJointDef = new RevoluteJointDef();
 		clawJointDef.enableMotor = true;
 		clawJointDef.maxMotorTorque = MAX_TORQUE;
-		clawJointDef.upperAngle = (float) Math.toRadians(45);
-		clawJointDef.lowerAngle = (float) Math.toRadians(-45);
 		clawJointDef.enableLimit = true;
 		
-		clawJointDef.initialize(body, leftArm, new Vector2(x - x_offset, y - 0.4f));
+		clawJointDef.upperAngle = (float) Math.toRadians(30);
+		clawJointDef.lowerAngle = (float) Math.toRadians(-45);
+		clawJointDef.initialize(body, leftArm, new Vector2(x - x_offset - 0.05f, y - 0.4f));
 		leftClaw = (RevoluteJoint) Level.world.createJoint(clawJointDef);
-		clawJointDef.initialize(body, rightArm, new Vector2(x + x_offset, y - 0.4f));
+		clawJointDef.upperAngle = (float) Math.toRadians(45);
+		clawJointDef.lowerAngle = (float) Math.toRadians(-30);
+		clawJointDef.initialize(body, rightArm, new Vector2(x + x_offset + 0.05f, y - 0.4f));
 		rightClaw = (RevoluteJoint) Level.world.createJoint(clawJointDef);
 	}
 	public void setPropelling(boolean propelling) {
@@ -227,15 +235,13 @@ public class Player extends Entity {
 			impulseVector.y = THRUST_IMPULSE * sine * deltaTime;
 			
 			body.applyLinearImpulse(impulseVector, push, true);
-			
-			droneSprite.setTexture(flight_frames[(int) (frame * ANIM_LENGTH)]);
-			frame++;
-			if (frame > (int) (flight_frames.length - 1) / ANIM_LENGTH) frame = 0;
+			stateTime += deltaTime;
+			droneSprite.setTexture(anim.getKeyFrame(stateTime));
 			AlreadyPropelling = true;
 		}
 		else {
+			stateTime = 0;
 			helicopter.stop();
-			frame = 0;
 			droneSprite.setTexture(idleTex);
 			AlreadyPropelling = false;
 		}
@@ -262,7 +268,7 @@ public class Player extends Entity {
 			rightClaw.setMotorSpeed(0);
 		}
 		else {
-			if (gripping && autoClaw) {
+			if (gripping && autoClaw && holding != 0) {
 				leftClaw.setMotorSpeed(CLAW_SPEED);
 				rightClaw.setMotorSpeed(-CLAW_SPEED);
 			}

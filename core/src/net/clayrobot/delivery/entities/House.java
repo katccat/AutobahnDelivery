@@ -11,7 +11,7 @@ import com.badlogic.gdx.math.Rectangle;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
-import net.clayrobot.delivery.Delivery;
+import net.clayrobot.delivery.AutobahnDelivery;
 import net.clayrobot.delivery.levels.Level;
 
 public class House extends Entity {
@@ -27,14 +27,15 @@ public class House extends Entity {
 	private static House[] houseAt;
 	private int boxesHere = 0;
 	private int boxesNeeded = 0;
+	private final int hitboxHeight = 6;
 	FixtureDef fixtureDef = new FixtureDef();
 	private House(float x, float y, float width, float height, int address) {
 		this.address = address;
-		game.staticBodyDef.position.set(x, y + height / 2);
+		game.staticBodyDef.position.set(x, y + hitboxHeight / 2);
 		body = Level.world.createBody(game.staticBodyDef);
 		
 		PolygonShape square = new PolygonShape();
-		square.setAsBox(width / 2, height / 2);
+		square.setAsBox(width / 2, hitboxHeight / 2);
 		fixtureDef.shape = square;
 		fixtureDef.isSensor = true;
 		body.setUserData(this);
@@ -85,7 +86,7 @@ public class House extends Entity {
 		Level.world.destroyBody(body);
 	}
 	protected static int assignAddress() {
-		Delivery game = Delivery.getGame();
+		AutobahnDelivery game = AutobahnDelivery.getGame();
 		int address = game.random.nextInt(count) + 1;
 		houseAt[address].boxesNeeded++;
 		return address;

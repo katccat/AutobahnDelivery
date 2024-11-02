@@ -1,17 +1,13 @@
 package net.clayrobot.delivery;
 import net.clayrobot.delivery.levels.Level;
-import com.badlogic.gdx.Gdx;
-import com.badlogic.gdx.audio.Sound;
 import com.badlogic.gdx.physics.box2d.Contact;
 import com.badlogic.gdx.physics.box2d.ContactImpulse;
 import com.badlogic.gdx.physics.box2d.ContactListener;
 import com.badlogic.gdx.physics.box2d.Fixture;
 import com.badlogic.gdx.physics.box2d.Manifold;
-import com.badlogic.gdx.utils.Array;
 import java.util.HashMap;
 import net.clayrobot.delivery.entities.Box;
 import net.clayrobot.delivery.entities.House;
-import net.clayrobot.delivery.entities.Player;
 
 import static net.clayrobot.delivery.entities.Player.Arm;
 public class MyContactListener implements ContactListener {
@@ -19,12 +15,10 @@ public class MyContactListener implements ContactListener {
 	private Object object2;
 	private Fixture fixture1;
 	private Fixture fixture2;
-	private Level level;
-	private Delivery game;
-	private HashMap<String, int[]> hashmap = new HashMap<>();
+	private final Level level;
+	private final HashMap<String, int[]> hashmap = new HashMap<>();
 	public MyContactListener(Level level) {
 		this.level = level;
-		game = Delivery.getGame();
 	}
 	public boolean setObjects(Contact contact) {
 		try {
@@ -84,16 +78,16 @@ public class MyContactListener implements ContactListener {
 		if (beginContact) {
 			if (LeftRight[0] > 0 && LeftRight[1] > 0) {
 				if (!box.held) {
-					game.displayText = String.valueOf(box.address);
-					level.player.setHolding(box.address);
+					level.game.displayText = String.valueOf(box.address);
+					level.getPlayer().setHolding(box.address);
 				}
 				box.held = true;
 			}
 		}
 		else if (box.held) {
 			if (LeftRight[0] < 1 && LeftRight[1] < 1) {
-				game.displayText = "";
-				level.player.clearHolding();
+				level.game.displayText = "";
+				level.getPlayer().clearHolding();
 				box.held = false;
 			}
 		}		

@@ -5,7 +5,8 @@ import com.badlogic.gdx.graphics.g2d.Sprite;
 import com.badlogic.gdx.physics.box2d.Body;
 import com.badlogic.gdx.physics.box2d.FixtureDef;
 import com.badlogic.gdx.physics.box2d.PolygonShape;
-import net.clayrobot.delivery.Delivery;
+import com.badlogic.gdx.utils.ScreenUtils;
+import net.clayrobot.delivery.AutobahnDelivery;
 import net.clayrobot.delivery.entities.Box;
 import net.clayrobot.delivery.entities.Entities;
 import net.clayrobot.delivery.entities.House;
@@ -16,11 +17,8 @@ public class TestGrounds extends Level {
 	private final int winningScore = 6;
 	private Sprite groundSprite;
 	private Body groundBody;
-	public TestGrounds(Delivery game) {
+	public TestGrounds(AutobahnDelivery game) {
 		super(game, 200, 120);
-	}
-	@Override
-	protected void setStage() {
 		groundSprite = new Sprite(new Texture("levels/void/grass.jpg"));
 		groundSprite.setBounds(0, 0, WORLD_WIDTH, GROUND_HEIGHT);
 		game.staticBodyDef.position.set(WORLD_WIDTH / 2, GROUND_HEIGHT / 2);
@@ -32,18 +30,21 @@ public class TestGrounds extends Level {
 		fixtureDef.friction = 0.9f;
 		fixtureDef.restitution = 0.3f;
 		groundBody.createFixture(fixtureDef);
+		start();
 	}
 	@Override
-	public void start(boolean restart) {
-		super.start(restart);
+	public void start() {
+		super.start();
 		House.spawn(4);
 		Player.spawn.x = 25;
 		Player.spawn.y = GROUND_HEIGHT + 5;
+		Player.EnabledArmType = Player.ArmType.RECTANGLE;
 		player = new Player();
 		Box.spawn(15, GROUND_HEIGHT, winningScore);
 	}
 	@Override
 	public void render(float deltaTime) {
+		ScreenUtils.clear(1, 1, 1, 1);
 		super.render(deltaTime);
 		game.batch.begin();
 		Entities.draw(deltaTime);
