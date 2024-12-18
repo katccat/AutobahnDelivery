@@ -17,7 +17,7 @@ public class DesktopLauncher {
 		config.setTitle("Autobahn Delivery Inc.");
 		config.setWindowSizeLimits(500, 300, -1, -1);
 		config.setWindowIcon(FileType.Internal, "icon.png");
-		config.disableAudio(true);
+		//config.disableAudio(true);
 		new Lwjgl3Application(new AutobahnDelivery(), config);
 	}
 }

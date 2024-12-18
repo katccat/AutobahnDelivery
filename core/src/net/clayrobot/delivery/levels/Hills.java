@@ -36,10 +36,10 @@ public class Hills extends Level {
 			music.setLooping(true);
 			music.play();
 		}
-		
-		Texture[] skyTex = new Texture[76];
-		for (int i = 0; i < skyTex.length; i++) {
-				skyTex[i] = new Texture("levels/hills/sky/2/sky" + i + ".png");
+		int factor = 2; // skip every other frame in frames folder
+		Texture[] skyTex = new Texture[76 / factor];
+		for (int i = 0; i < skyTex.length; i ++) {
+				skyTex[i] = new Texture("levels/hills/sky/2/sky" + (i * factor) + ".png");
 				skyTex[i].setAnisotropicFilter(0);
 		}
 		skySprite = new Sprite(skyTex[0]);
@@ -62,8 +62,8 @@ public class Hills extends Level {
 		backgroundSprite = new Sprite(bgTex);
 		backgroundSprite.setBounds(0, 0, WORLD_WIDTH, WORLD_HEIGHT);
 
-		map = game.mapLoader.load("levels/hills/level1.tmx");
-		houseMapObjects = map.getLayers().get("Houses").getObjects();
+		map = game.mapLoader.load("levels/hills/level1.tmx"); // this file contains house locations and level geometry
+		houseMapObjects = map.getLayers().get("Houses").getObjects(); // retrieve house data from house layer in tmx file
 		MapObjects TerrainMapObjects = map.getLayers().get("Terrain").getObjects();
 		MapSpawner mapSpawner = new MapSpawner();
 		mapSpawner.TerrainSpawner(TerrainMapObjects, 0.25f, world, game.staticBodyDef);
@@ -99,8 +99,8 @@ public class Hills extends Level {
 		skySprite.draw(game.batch);
 		super.render(deltaTime);
 		backgroundSprite.draw(game.batch);
+		//Box.drawAll();
 		Entities.draw(deltaTime);
-		animTime += deltaTime;
 		//foregroundSprite.setTexture(anim.getKeyFrame(animTime));
 		foregroundSprite.draw(game.batch);
 		game.batch.end();

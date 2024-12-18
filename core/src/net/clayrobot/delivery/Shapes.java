@@ -3,9 +3,9 @@ package net.clayrobot.delivery;
 import com.badlogic.gdx.math.Vector2;
 import java.util.HashMap;
 
-public class Shapes {
+public class Shapes { // this class serves as a container for shapes represented as a vector of vectors
 	private Shapes() {}
-	private final static HashMap<String, Vector2[]> shapes = new HashMap<String, Vector2[]>();
+	private final static HashMap<String, Vector2[]> shapes = new HashMap<>();
 	private static final Vector2[] ROCK = {
 		new Vector2(1, 0.3f),
 		new Vector2(0.4f, 1),
@@ -33,7 +33,7 @@ public class Shapes {
 		new Vector2(1, -0.866f),
 		new Vector2(0, -0.5f)
 	};
-	private static final Vector2[] LEFT_ARM_TOP = {
+	private static final Vector2[] LEFT_ARM_TOP = { // these arm shapes are utilized by the player
 		new Vector2(-0.75f, 0),
 		new Vector2(0, 0),
 		new Vector2(0.5f, -0.8f),
@@ -47,7 +47,7 @@ public class Shapes {
 	};
 	private static final Vector2[] RIGHT_ARM_TOP = new Vector2[LEFT_ARM_TOP.length];
 	private static final Vector2[] RIGHT_ARM_BOTTOM = new Vector2[LEFT_ARM_BOTTOM.length];
-	static {
+	static { // this static block just takes the left arm shapes and mirrors them for the right arms
 		for (int vertex = RIGHT_ARM_TOP.length - 1; vertex >= 0; vertex--) {
 			RIGHT_ARM_TOP[vertex] = new Vector2(LEFT_ARM_TOP[vertex].x * -1, LEFT_ARM_TOP[vertex].y);
 		}
@@ -66,12 +66,12 @@ public class Shapes {
 	public static Vector2[] get(String shapeKey, float scale) {
 		Vector2[] sourceShape = shapes.get(shapeKey);
 		Vector2[] newShape = new Vector2[sourceShape.length];
-		for (int vertex = newShape.length - 1; vertex >= 0; vertex--) {
+		for (int vertex = newShape.length - 1; vertex >= 0; vertex--) { // scales shape before returning
 			newShape[vertex] = new Vector2(sourceShape[vertex].x * scale, sourceShape[vertex].y * scale);
 		}
 		return newShape;
 	}
-	public static Vector2[] get(String shapeKey, float scaleX, float scaleY) {
+	public static Vector2[] get(String shapeKey, float scaleX, float scaleY) { // can provide seperate scales for x and y
 		Vector2[] sourceShape = shapes.get(shapeKey);
 		Vector2[] newShape = new Vector2[sourceShape.length];
 		for (int vertex = newShape.length - 1; vertex >= 0; vertex--) {

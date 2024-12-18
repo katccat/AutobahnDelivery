@@ -4,7 +4,7 @@ import com.badlogic.gdx.graphics.Texture;
 import com.badlogic.gdx.graphics.g2d.Sprite;
 
 public class Billboard extends Entity {
-	private final static float FRAME_SCALE = 1.06f;
+	private final static float FRAME_SCALE = 1.06f; // the scale of the frame drawn around the picture
 	private final Sprite billboardSprite;
 	private final Sprite frameSprite = new Sprite(new Texture("propaganda/frame2.png"));
 	private final Texture texture1;
@@ -22,7 +22,7 @@ public class Billboard extends Entity {
 		this(x, y, width, height, texture[0]);
 		texture2 = texture[1];
 		animated = true;
-		this.interval = (int) (interval * (game.refreshRate / 60f));
+		this.interval = (int) (interval * (game.refreshRate / 60f)); 
 	}
 	public Billboard(int x, int y, float width, float height, Texture... texture) {
 		this(x, y, width, height, 28, texture);

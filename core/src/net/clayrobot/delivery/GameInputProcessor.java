@@ -9,7 +9,7 @@ import com.badlogic.gdx.InputAdapter;
 import net.clayrobot.delivery.entities.Player;
 
 public class GameInputProcessor extends InputAdapter {
-	private int propellingPointer = -1;
+	private int propellingPointer = -1; // these ints keep track of touches that were intended as either propell or claw (in case finger is dragged elsewhere)
 	private int clawingPointer = -1;
 	private final Level level;
 	private final ApplicationType platform;
@@ -66,18 +66,18 @@ public class GameInputProcessor extends InputAdapter {
 	@Override
 	public boolean touchDown(int screenX, int screenY, int pointer, int button) {
 		if (platform == Application.ApplicationType.Desktop) {
-			return true;
+			return true; // disables touch on desktop (because mouse is treated same as touch and it's annoying)
 		}
-		if (screenX < Gdx.graphics.getWidth() / 2) {
+		if (screenX < Gdx.graphics.getWidth() / 2) { // if touch is on left side of screen
 			level.getPlayer().setPropelling(true);
-			propellingPointer = pointer;
+			propellingPointer = pointer; // keeps track of the pointer index that was used to propell
 		}
-		else if (!level.getPlayer().getGripping()) {
-			level.getPlayer().setClawing(true);
+		else if (!level.getPlayer().getGripping()) { // if touch is on right and player isn't already holding
+			level.getPlayer().setClawing(true); // keeps track of the pointer index that was used to claw
 			clawingPointer = pointer;
 		}
 		else {
-			level.getPlayer().releaseGrip();
+			level.getPlayer().releaseGrip(); // touch was on right and player was already holding (player intended to release grip)
 		}
 		return true;
 	}
@@ -87,7 +87,7 @@ public class GameInputProcessor extends InputAdapter {
 		if (platform == Application.ApplicationType.Desktop) {
 			return true;
 		}
-		if (pointer == propellingPointer) {
+		if (pointer == propellingPointer) { // even if the pointer moved, it was kept track of so it is handled accordingly
 			level.getPlayer().setPropelling(false);
 			propellingPointer = -1;
 		}

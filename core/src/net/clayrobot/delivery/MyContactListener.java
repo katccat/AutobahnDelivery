@@ -21,7 +21,7 @@ public class MyContactListener implements ContactListener {
 		this.level = level;
 	}
 	public boolean setObjects(Contact contact) {
-		try {
+		try { // to prevent crash
 			object1 = contact.getFixtureA().getBody().getUserData();
 			object2 = contact.getFixtureB().getBody().getUserData();
 		}
@@ -30,10 +30,9 @@ public class MyContactListener implements ContactListener {
 		}
 		fixture1 = contact.getFixtureA();
 		fixture2 = contact.getFixtureB();
-		if (object1 == null || object2 == null) return false;
 		return true;
 	}
-	private boolean testThenOrderPair(Class<?> classA, Class<?> classB) {
+	private boolean testThenOrderPair(Class<?> classA, Class<?> classB) { // this method takes two class arguments and orders the object in that pair if there are matches
 		if (classA.isInstance(object1) && classB.isInstance(object2)) {
 			return true;
 		} 
@@ -48,7 +47,7 @@ public class MyContactListener implements ContactListener {
 		}
 		return false;
 	}
-	private void BoxHouseAction(boolean beginContact, Box box, House house) {
+	private void BoxHouseAction(boolean beginContact, Box box, House house) { // this method is called when boxes enter/exit house (for scoring)
 		if (box.address == house.address) {
 			if (beginContact) {
 				house.incrementScore();
@@ -60,33 +59,33 @@ public class MyContactListener implements ContactListener {
 			}
 		}
 	}
-	private void BoxPlayerAction(boolean beginContact, Box box, Fixture playerFixture) {
+	private void BoxPlayerAction(boolean beginContact, Box box, Fixture playerFixture) { // this method is for when the player is grabbing a box with both arms (to display its address on screen)
 		Arm side = (Arm) playerFixture.getBody().getUserData();
 		String uuid = box.uuid;
 		
 		if (beginContact && !hashmap.containsKey(uuid)) {
-			hashmap.put(uuid, new int[2]);
+			hashmap.put(uuid, new int[2]); // creates new hashmap entry which uses box UUID as index that points to int[2] (one for each arm)
 		}
 		if (side == Arm.LEFT) {
-			hashmap.get(uuid)[0] += beginContact ? 1 : -1;
+			hashmap.get(uuid)[0] += beginContact ? 1 : -1; // increments if beginContact is true, decrements if false
 		}
 		else if (side == Arm.RIGHT) {
-			hashmap.get(uuid)[1] += beginContact ? 1 : -1;
+			hashmap.get(uuid)[1] += beginContact ? 1 : -1; // the max value is determined by how many fixtures each arm has that can possibly touch the box
 		}
 		int[] LeftRight = hashmap.get(uuid);
 		
 		if (beginContact) {
 			if (LeftRight[0] > 0 && LeftRight[1] > 0) {
 				if (!box.held) {
-					level.game.displayText = String.valueOf(box.address);
+					level.game.displayText = String.valueOf(box.address); // since a box is being held, display its address
 					level.getPlayer().setHolding(box.address);
 				}
 				box.held = true;
 			}
 		}
-		else if (box.held) {
-			if (LeftRight[0] < 1 && LeftRight[1] < 1) {
-				level.game.displayText = "";
+		else if (box.held) { // if box was being held but contact ended
+			if (LeftRight[0] < 1 && LeftRight[1] < 1) { // if no fixtures in either left or right arm are touching this box
+				level.game.displayText = ""; // clear display text
 				level.getPlayer().clearHolding();
 				box.held = false;
 			}

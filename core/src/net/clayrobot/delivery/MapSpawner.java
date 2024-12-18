@@ -14,9 +14,9 @@ import com.badlogic.gdx.physics.box2d.PolygonShape;
 import com.badlogic.gdx.physics.box2d.World;
 
 public class MapSpawner {
-	private float restitution = 0.03f;
+	private float restitution = 0.03f; // default physical values for map terrain for now
 	private float friction = 0.9f;
-	public MapSpawner(float terrainFriction, float terrainRestitution) {
+	public MapSpawner(float terrainFriction, float terrainRestitution) { // creates MapSpawner with specified physical values
 		friction = terrainFriction;
 		restitution = terrainRestitution;
 	}
@@ -30,9 +30,9 @@ public class MapSpawner {
 	public void TerrainSpawner(MapObjects terrainMapObjects, float scale, World world, BodyDef bodyDef) {
 		bodyDef.position.set(0, 0);
 		Body terrainBody = world.createBody(bodyDef);
-		PolygonShape terrainShape = new PolygonShape();
+		PolygonShape terrainShape = new PolygonShape(); // this will hold the shape at the current index recorded from the tmx file
 		FixtureDef fixtureDef = new FixtureDef();
-		fixtureDef.shape = terrainShape;
+		fixtureDef.shape = terrainShape; // this is a reference to an updating terrain shape that is finalized when a new fixture is created
 		fixtureDef.restitution = restitution;
 		fixtureDef.friction = friction;
 

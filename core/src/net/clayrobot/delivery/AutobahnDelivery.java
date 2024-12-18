@@ -36,14 +36,14 @@ public class AutobahnDelivery extends Game {
 	private SpriteBatch fgBatch;
 	public ShapeDrawer shapeDrawer;
 	public Application.ApplicationType platform;
-	public boolean mobilePlatform = false;
+	public boolean mobilePlatform = false; // used to enable / disable touch controls
 	
 	public Box2DDebugRenderer debugRenderer;
 	public BodyDef dynamicBodyDef = new BodyDef();
 	public BodyDef staticBodyDef = new BodyDef();
 	
 	public boolean isPaused = false;
-	private boolean justResumed = false;
+	private boolean justResumed = false; // used to set delta time to 0 after resume
 	public boolean drawDebug = false;
 
 	public int refreshRate;
@@ -56,7 +56,7 @@ public class AutobahnDelivery extends Game {
 	private OrthographicCamera camera;
 	public TmxMapLoader mapLoader;
 	public OrthogonalTiledMapRenderer mapRenderer;
-	private float stateTime = 0;
+	private float stateTime = 0; // used so animations know where they are
 	
 	private Sprite overlaySprite;
 	private Animation<Texture> overlayAnim;
@@ -102,7 +102,7 @@ public class AutobahnDelivery extends Game {
 		dynamicBodyDef.type = BodyDef.BodyType.DynamicBody;
 		staticBodyDef.type = BodyDef.BodyType.StaticBody;
 		debugRenderer = new Box2DDebugRenderer();
-		Texture[] overlayTex = {
+		Texture[] overlayTex = { // this is the camera ui overlay
 			new Texture("overlay1.png"),
 			new Texture("overlay2.png")
 		};
@@ -123,7 +123,7 @@ public class AutobahnDelivery extends Game {
 						else pause();
 						return true;
 					case Input.Keys.R:
-						if (screen instanceof Level) {
+						if (screen instanceof Level) { // only restarts if that is available (screen is of type level)
 							Level level = (Level) screen;
 							level.start();
 						}
@@ -133,11 +133,11 @@ public class AutobahnDelivery extends Game {
 						return true;
 					case Input.Keys.NUM_1:
 						screen.dispose();
-						setScreen(new Hills(game));
+						setScreen(new Hills(game)); // press 1 to switch to hills level
 						return true;
 					case Input.Keys.NUM_2:
 						screen.dispose();
-						setScreen(new TestGrounds(game));
+						setScreen(new TestGrounds(game)); // press 2 to switch to old flat level
 						return true;
 				}
 				return false;
@@ -156,13 +156,13 @@ public class AutobahnDelivery extends Game {
 			}
 		};
 		multiplexer = new InputMultiplexer();
-		multiplexer.addProcessor(UiInputProcessor);
+		multiplexer.addProcessor(UiInputProcessor); // a processor for character controls is added / removed as needed by levels 
 		Gdx.input.setInputProcessor(multiplexer);
 	}
 
 	
 	@Override
-	public void dispose() {
+	public void dispose() { // this method clears memory. many objects in this game have a dispose method
 		if (screen != null) {
 			screen.hide();
 			screen.dispose();
@@ -201,18 +201,18 @@ public class AutobahnDelivery extends Game {
 			justResumed = false;
 		}
 		else if (!isPaused) {
-			deltaTime = Gdx.graphics.getDeltaTime();
+			deltaTime = Gdx.graphics.getDeltaTime(); // only gives actual delta time if game is not paused and wasn't just resumed (avoids jumps)
 		}
 		
-		screen.render(deltaTime);
+		screen.render(deltaTime); // renders screen object before rendering foreground elements
 		fgBatch.begin();
 		if (screen instanceof Level) {
 			Level level = (Level) screen;
 			int time = level.getTime();
 			String timeString = String.format("%d:%02d", (time / 60), (time % 60));
 			
-			APL333.draw(fgBatch, timeString, camera.viewportWidth * (3f / 4), camera.viewportHeight * (7f / 8));
-			Redaction.draw(fgBatch, displayText, camera.viewportWidth * (3f / 4), camera.viewportHeight / 2);
+			APL333.draw(fgBatch, timeString, camera.viewportWidth * (3f / 4), camera.viewportHeight * (7f / 8)); // this draws remaining time
+			Redaction.draw(fgBatch, displayText, camera.viewportWidth * (3f / 4), camera.viewportHeight / 2); // this draws display text (usually box number)
 		}
 		//Meyrin.draw(fgBatch, "1", camera.viewportWidth / 2, camera.viewportHeight / 2);
 		stateTime += deltaTime;

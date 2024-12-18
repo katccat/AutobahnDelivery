@@ -38,7 +38,7 @@ public class TestGrounds extends Level {
 		House.spawn(4);
 		Player.spawn.x = 25;
 		Player.spawn.y = GROUND_HEIGHT + 5;
-		Player.EnabledArmType = Player.ArmType.RECTANGLE;
+		Player.EnabledArmType = Player.ArmType.CLAW1;
 		player = new Player();
 		Box.spawn(15, GROUND_HEIGHT, winningScore);
 	}

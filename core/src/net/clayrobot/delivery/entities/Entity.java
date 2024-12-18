@@ -7,12 +7,12 @@ abstract class Entity {
 	
 	protected AutobahnDelivery game;
 	public Entity() {
-		entities.add(this);
+		entities.add(this); // subclasses of Entity implicitly call this so they can be kept track of
 		game = AutobahnDelivery.getGame();
 	}
-	protected void draw(float deltaTime) {
-		if (deltaTime > 0) this.update();
+	protected void draw(float deltaTime) { // renders entity on screen
+		if (deltaTime > 0) this.update(); // only update if time has passed (don't update during pause)
 	}
-	abstract protected void update();
-	abstract protected void delete();
+	abstract protected void update(); // updates entity's state
+	abstract protected void delete(); // entities will need to be deleted for various reasons (no longer needed, game restarting, quitting level, etc)
 }

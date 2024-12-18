@@ -42,7 +42,7 @@ public class Player extends Entity {
 	private final FixtureDef fixtureDef = new FixtureDef();
 	private RevoluteJoint leftClaw;
 	private RevoluteJoint rightClaw;
-	public Vector2 pos;
+	public Vector2 position;
 	private float angle, workingAngle, sine, cosine, torque;
 	private final float CLAW_SPEED = 3;
 	private final float RETRACT_SPEED = 1;
@@ -50,7 +50,7 @@ public class Player extends Entity {
 	private final float GRIP_THRESHOLD = 99;
 	private final float RELEASE_THRESHOLD = 1;
 	private final float TILT_IMPULSE = 18f;
-	private final float THRUST_IMPULSE = 50;
+	private final float THRUST_IMPULSE = 55;
 	private boolean alive = true;
 	private boolean gripping = false;
 	private boolean AlreadyPropelling = false;
@@ -60,14 +60,13 @@ public class Player extends Entity {
 	private boolean tiltingRight = false;
 	private boolean autoClaw = true;
 	private final Vector2 impulseVector = new Vector2();
-	private final Vector2 forceVector = new Vector2();
 	private final Vector2 push = new Vector2(0, 0);
-	private float targetAngle = 0;
-	private float angleDifferenceRatio;
+	private float targetAngle = 0; // used for tilt controls
+	private float angleDifferenceRatio; // used for tilt controls
 	private float deltaTime;
 	public int holding = 0;
 	private final Sound cock = Gdx.audio.newSound(Gdx.files.internal("guncock2.wav"));
-	public static final Vector2 spawn = Vector2.Zero;
+	public static final Vector2 spawn = Vector2.Zero; // where player will be created (level sets the spawn)
 	public static enum Arm {
 		RIGHT,
 		LEFT
@@ -76,7 +75,7 @@ public class Player extends Entity {
 		RECTANGLE,
 		CLAW1
 	}
-	public static ArmType EnabledArmType = ArmType.RECTANGLE;
+	public static ArmType EnabledArmType = ArmType.RECTANGLE; // level can change this property
 	public Player() {
 		this(spawn.x, spawn.y, true);
 	}
@@ -84,7 +83,7 @@ public class Player extends Entity {
 		anim = new Animation<>(0.05f, flight_frames);
 		anim.setPlayMode(Animation.PlayMode.LOOP);
 		this.alive = alive;
-		pos = new Vector2(x, y);
+		position = new Vector2(x, y);
 		game.dynamicBodyDef.position.set(x, y);
 		body = Level.world.createBody(game.dynamicBodyDef);
 		// capsule setup
@@ -104,8 +103,7 @@ public class Player extends Entity {
 		circle.setPosition(new Vector2(-0.8f, 0));
 		fixtureDef.shape = circle;
 		body.createFixture(fixtureDef);
-		body.setAngularDamping(0.3f);
-		//body.setUserData(this);
+		body.setAngularDamping(0.3f); // to dampen uncontrollable spinning
 		circle.dispose();
 		square.dispose();
 		if (ENABLE_ARMS) setupArms(x, y, EnabledArmType);
@@ -118,8 +116,8 @@ public class Player extends Entity {
 		float y_offset = 1f;
 		//float legScaleX = 0.45f;
 		//float legScaleY = 0.86f;
-		float legScaleX = 0.42f;
-		float legScaleY = 0.75f;
+		float armScaleX = 0.42f;
+		float armScaleY = 0.75f;
 		game.dynamicBodyDef.position.set(x - x_offset, y - y_offset);
 		leftArm = Level.world.createBody(game.dynamicBodyDef);
 		leftArm.setUserData(Arm.LEFT);
@@ -131,29 +129,29 @@ public class Player extends Entity {
 		fixtureDef.shape = armShape;
 		fixtureDef.friction = 0.95f;
 		fixtureDef.restitution = 0.18f;
-		if (armType == ArmType.RECTANGLE) {
+		if (armType == ArmType.RECTANGLE) { // creates rectangle arms
 			fixtureDef.density = 0.6f;
 			armShape.setAsBox(0.15f, 0.5f);
 			leftArm.createFixture(fixtureDef);
 			rightArm.createFixture(fixtureDef);
 		}
-		else if (armType == ArmType.CLAW1) {
+		else if (armType == ArmType.CLAW1) { // creates claw arms using custom shapes in Shapes class
 			fixtureDef.density = 0.5f;
-			armShape.set(Shapes.get("LEFT_ARM_TOP", legScaleX, legScaleY));
+			armShape.set(Shapes.get("LEFT_ARM_TOP", armScaleX, armScaleY));
 			leftArm.createFixture(fixtureDef);
-			armShape.set(Shapes.get("LEFT_ARM_BOTTOM", legScaleX, legScaleY));
+			armShape.set(Shapes.get("LEFT_ARM_BOTTOM", armScaleX, armScaleY));
 			leftArm.createFixture(fixtureDef);
-			armShape.set(Shapes.get("RIGHT_ARM_TOP", legScaleX, legScaleY));
+			armShape.set(Shapes.get("RIGHT_ARM_TOP", armScaleX, armScaleY));
 			rightArm.createFixture(fixtureDef);
-			armShape.set(Shapes.get("RIGHT_ARM_BOTTOM", legScaleX, legScaleY));
+			armShape.set(Shapes.get("RIGHT_ARM_BOTTOM", armScaleX, armScaleY));
 			rightArm.createFixture(fixtureDef);
 		}
 		armShape.dispose();
 		
 		RevoluteJointDef clawJointDef = new RevoluteJointDef();
-		clawJointDef.enableMotor = true;
-		clawJointDef.maxMotorTorque = MAX_TORQUE;
-		clawJointDef.enableLimit = true;
+		clawJointDef.enableMotor = true; // this allows the player to move the arms
+		clawJointDef.maxMotorTorque = MAX_TORQUE; // this determines the strength of the arms
+		clawJointDef.enableLimit = true; // this enables a limit to the max rotation of the arms
 		
 		clawJointDef.upperAngle = (float) Math.toRadians(30);
 		clawJointDef.lowerAngle = (float) Math.toRadians(-45);
@@ -164,6 +162,7 @@ public class Player extends Entity {
 		clawJointDef.initialize(body, rightArm, new Vector2(x + x_offset + 0.05f, y - 0.4f));
 		rightClaw = (RevoluteJoint) Level.world.createJoint(clawJointDef);
 	}
+	// these methods are called by an input processor
 	public void setPropelling(boolean propelling) {
 		this.propelling = propelling;
 	}
@@ -184,13 +183,13 @@ public class Player extends Entity {
 	}
 	
 	private void pollAccelerometer() {
-		float tiltRatio = Gdx.input.getAccelerometerY() / (9.8f);
-		tiltRatio *= 0.86f;
-		final int orientation = -1;
+		float tiltRatio = Gdx.input.getAccelerometerY() / (9.8f); // the ratio of tilt (away from perfectly landscape)
+		tiltRatio *= 0.86f; // dampens the ratio
+		final int orientation = -1; // orientation is not properly implemented yet (only upright landscape for now)
 		
 		//final float targetAngle = angle + (float) (Math.PI / 2) * tiltRatio * orientation;
-		targetAngle = (float) (Math.PI / 2) * tiltRatio * orientation;
-		angleDifferenceRatio = Math.abs((angle % (float) (Math.PI * 2)) - targetAngle) / (float) (Math.PI / 2);
+		targetAngle = (float) (Math.PI / 2) * tiltRatio * orientation; // where the player intends to rotate the player to based on the tilt
+		angleDifferenceRatio = Math.abs((angle % (float) (Math.PI * 2)) - targetAngle) / (float) (Math.PI / 2); // used to determine strength of rotation to target angle (strong if large, weak if small)
 		//angleDifferenceRatio = Math.abs(angle - targetAngle) / (float) (Math.PI / 2);
 		//scoreText = Math.round((float) Math.toDegrees(angle)) + " : " + Math.round((float) Math.toDegrees(targetAngle));
 		
@@ -208,7 +207,7 @@ public class Player extends Entity {
 		}
 	}
 	private void updateState(boolean updateSineCosine) {
-		pos = body.getPosition();
+		position = body.getPosition();
 		angle = body.getAngle();
 		if (updateSineCosine) {
 			// transformed by 90 degrees so 0 is up
@@ -220,17 +219,18 @@ public class Player extends Entity {
 	@Override
 	protected void update() {
 		if (game.mobilePlatform) {
-			push.x = pos.x - 0.4f * cosine;
-			push.y = pos.y - 0.5f * sine;
+			push.x = position.x - 0.4f * cosine;
+			push.y = position.y - 0.5f * sine;
 			pollAccelerometer();
 		}
 		else {
-			push.x = pos.x - 0.2f * cosine;
-			push.y = pos.y - 0.5f * sine;
+			push.x = position.x - 0.2f * cosine;
+			push.y = position.y - 0.5f * sine;
 		}
 		
 		if (propelling) {
 			if (!AlreadyPropelling) helicopter.loop();
+			// x and y components multiplied by cosine/sine for direction and deltaTime for consistent speed regardless of framerate
 			impulseVector.x = THRUST_IMPULSE * cosine * deltaTime;
 			impulseVector.y = THRUST_IMPULSE * sine * deltaTime;
 			
@@ -245,12 +245,13 @@ public class Player extends Entity {
 			droneSprite.setTexture(idleTex);
 			AlreadyPropelling = false;
 		}
-		if (game.mobilePlatform) {
+		if (game.mobilePlatform) { // this block is for tilt controls
 			final float dampRatio = 1.2f;//0.5f;
+			// multiply by angleDifferenceRatio to determine strenght of pull (strong if big, weak if small)
 			if (tiltingLeft) body.applyAngularImpulse(TILT_IMPULSE * angleDifferenceRatio * dampRatio * deltaTime, true);
 			if (tiltingRight) body.applyAngularImpulse(-TILT_IMPULSE * angleDifferenceRatio * dampRatio * deltaTime, true);
 		}
-		else {
+		else { // this block is for arrow keys
 			if (tiltingLeft) body.applyAngularImpulse(TILT_IMPULSE * deltaTime, true);
 			if (tiltingRight) body.applyAngularImpulse(-TILT_IMPULSE * deltaTime, true);
 		}
@@ -261,18 +262,18 @@ public class Player extends Entity {
 		if (clawing) {
 			leftClaw.setMotorSpeed(CLAW_SPEED);
 			rightClaw.setMotorSpeed(-CLAW_SPEED);
-			if (Math.abs(torque) > GRIP_THRESHOLD) gripping = true;
+			if (Math.abs(torque) > GRIP_THRESHOLD) gripping = true; // arms experience feedback, so they know they are gripping something
 		}
-		else if (gripping && Math.abs(torque) > RELEASE_THRESHOLD) {
+		else if (gripping && Math.abs(torque) > RELEASE_THRESHOLD) { // maintain zero motor speed as long as torque is above release threshold
 			leftClaw.setMotorSpeed(0);
 			rightClaw.setMotorSpeed(0);
 		}
-		else {
-			if (gripping && autoClaw && holding != 0) {
+		else { 
+			if (gripping && autoClaw && holding != 0) { // if the player is holding something (and it is a box) and autoClaw is true
 				leftClaw.setMotorSpeed(CLAW_SPEED);
 				rightClaw.setMotorSpeed(-CLAW_SPEED);
 			}
-			else {
+			else { // if autoClaw is false and the box slips too much, the claws retract to their retracted position (like a claw machine)
 				gripping = false;
 				leftClaw.setMotorSpeed(-RETRACT_SPEED);
 				rightClaw.setMotorSpeed(RETRACT_SPEED);
@@ -297,14 +298,14 @@ public class Player extends Entity {
 			fillBody(leftArm, Color.LIME);
 		}
 		updateState(false);
-		droneSprite.setBounds(pos.x - droneSprite.getWidth() / 2, pos.y - droneSprite.getHeight() / 2, 4f, 2.48f);
+		droneSprite.setBounds(position.x - droneSprite.getWidth() / 2, position.y - droneSprite.getHeight() / 2, 4f, 2.48f);
 		droneSprite.setOriginCenter();
 		droneSprite.setRotation((float) Math.toDegrees(angle));
 		droneSprite.draw(game.batch);
 		if (game.drawDebug && alive) game.shapeDrawer.polygon(push.x, push.y, 6, 0.1f);
 	}
 	public void setHolding(int addr) {
-		cock.play();
+		cock.play(); // sound plays when contact listener notes player is holding box
 		holding = addr;
 	}
 	public void clearHolding() {
