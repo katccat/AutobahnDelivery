@@ -82,10 +82,10 @@ public class Hills extends Level {
 			//new Billboard(8, GROUND_HEIGHT + 10, 10, 10, new Texture("propaganda/level1map.png"));
 		//}
 		House.spawn(houseMapObjects);
-		Player.spawn.x = 25;
-		Player.spawn.y = GROUND_HEIGHT + 5;
-		Player.EnabledArmType = Player.ArmType.CLAW1;
-		player = new Player();
+		ClawDrone.spawn.x = 25;
+		ClawDrone.spawn.y = GROUND_HEIGHT + 5;
+		ClawDrone.EnabledArmType = ClawDrone.ArmType.CLAW1;
+		player = new ClawDrone();
 		Box.spawn(15, GROUND_HEIGHT, winningScore);
 	}
 	@Override

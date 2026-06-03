@@ -16,11 +16,7 @@ import net.clayrobot.delivery.levels.Level;
 public class Box extends Entity {
 	private final Body body;
 	
-	private final Sprite boxSprite = new Sprite(new Texture("box/box3dback.png"));
-	private final Texture[] boxTextures = {
-		new Texture("box/box3dback.png"), // only "back" is used right now
-		new Texture("box/box3dfront.png")
-	};
+	private final Sprite boxSprite = new Sprite(new Texture("box/box.png"));
 	private final Texture[] faceTexture;
 	//private final Texture outlineTexture1 = new Texture("box/frame1.png");
 	//private final Texture outlineTexture2 = new Texture("box/frame2.png");
@@ -84,9 +80,6 @@ public class Box extends Entity {
 	public void delete() {
 		Level.world.destroyBody(body);
 		fallSound.dispose();
-		for (Texture texture : boxTextures) {
-			texture.dispose();
-		}
 	}
 	protected static void dispose() {
 
@@ -122,20 +115,6 @@ public class Box extends Entity {
 		//frameSprite.setRotation((float) Math.toDegrees(body.getAngle()));
 		//frameSprite.draw(game.batch);
 		//if (drawDebug) font4.draw(batch, String.valueOf(address), position.x - 0.5f, position.y + 1);
-	}
-	private void drawSides() { // not used
-		
-		update();
-		boxSprite.setTexture(boxTextures[0]);
-		boxSprite.setBounds(position.x - boxSprite.getWidth() / 2, position.y - boxSprite.getHeight() / 2, width * 1.2f, height * 1.2f);
-		boxSprite.setOriginCenter();
-		boxSprite.setRotation((float) Math.toDegrees(body.getAngle()));
-		boxSprite.draw(game.batch);
-	}
-	public static void drawAll() {
-		//for (Box box : boxes) {
-		//	box.drawSides();
-		//}
 	}
 	public static void spawn(int spawnX, int spawnY, int amount) { // static spawn method that spawns boxes in a pile and gives them addresses
 		final AutobahnDelivery game = AutobahnDelivery.getGame();

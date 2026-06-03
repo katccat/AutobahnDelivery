@@ -110,7 +110,7 @@ public class AutobahnDelivery extends Game {
 		overlayAnim = new Animation<>(1, overlayTex);
 		overlayAnim.setPlayMode(Animation.PlayMode.LOOP);
 		setupInputProcessor();
-		setScreen(new Hills(this));
+		setScreen(new TestGrounds(this));
 	}
 	private void setupInputProcessor() {
 		InputAdapter UiInputProcessor = new InputAdapter() {

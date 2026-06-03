@@ -13,14 +13,14 @@ import net.clayrobot.delivery.AutobahnDelivery;
 import net.clayrobot.delivery.GameInputProcessor;
 import net.clayrobot.delivery.MyContactListener;
 import net.clayrobot.delivery.entities.Entities;
-import net.clayrobot.delivery.entities.Player;
+import net.clayrobot.delivery.entities.ClawDrone;
 
 public abstract class Level implements Screen { // this class is the template for Screens that are Levels in this game
 	public final AutobahnDelivery game;
 	public static World world;
 	protected final int WORLD_WIDTH;
 	protected final int WORLD_HEIGHT;
-	protected Player player;
+	protected ClawDrone player;
 	protected final OrthographicCamera camera;
 	protected int score = 0;
 	private final boolean FREE_CAM = true; // toggles whether camera can follow player anywhere or is bound to world borders
@@ -41,10 +41,10 @@ public abstract class Level implements Screen { // this class is the template fo
 		time = 270; // seconds
 		if (game.isPaused) game.resume();
 	}
-	public Player getPlayer() {
+	public ClawDrone getPlayer() {
 		return player;
 	}
-	public void setPlayer(Player player) {
+	public void setPlayer(ClawDrone player) {
 		this.player = player;
 	}
 	protected void updateCamera() { // if free cam is false this method bounds the camera to world borders
@@ -93,13 +93,13 @@ public abstract class Level implements Screen { // this class is the template fo
 	@Override
 	public void resize(int width, int height) {
 		//deltaTime = 0;
-		if (game.mobilePlatform) {
+		/*if (game.mobilePlatform) {
 			camera.setToOrtho(false, 50, 50 * ((float) height / width));
 		}
 		else {
 			camera.setToOrtho(false, 30 * ((float) width / height), 30);
-		}
-		camera.setToOrtho(false, 30 * ((float) width / height), 30);
+		}*/
+		camera.setToOrtho(false, 20 * ((float) width / height), 20);
 		camera.update(false);
 	}
 	protected void updateTime(float deltaTime) {

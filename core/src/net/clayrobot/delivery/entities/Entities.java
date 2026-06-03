@@ -21,7 +21,7 @@ public class Entities {
 	}
 	public static void disposeStaticResources() { // called when quitting game
 		clear();
-		Player.dispose();
+		ClawDrone.dispose();
 		Box.dispose();
 		House.dispose();
 	}

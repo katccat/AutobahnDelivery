@@ -6,7 +6,7 @@ import com.badlogic.gdx.Application.ApplicationType;
 import com.badlogic.gdx.Gdx;
 import com.badlogic.gdx.Input;
 import com.badlogic.gdx.InputAdapter;
-import net.clayrobot.delivery.entities.Player;
+import net.clayrobot.delivery.entities.ClawDrone;
 
 public class GameInputProcessor extends InputAdapter {
 	private int propellingPointer = -1; // these ints keep track of touches that were intended as either propell or claw (in case finger is dragged elsewhere)
@@ -38,7 +38,7 @@ public class GameInputProcessor extends InputAdapter {
 				break;
 			case Input.Keys.K:
 				level.getPlayer().kill();
-				level.setPlayer(new Player());
+				level.setPlayer(new ClawDrone());
 				break;
 		}
 		return true;

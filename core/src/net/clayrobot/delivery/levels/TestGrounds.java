@@ -10,7 +10,7 @@ import net.clayrobot.delivery.AutobahnDelivery;
 import net.clayrobot.delivery.entities.Box;
 import net.clayrobot.delivery.entities.Entities;
 import net.clayrobot.delivery.entities.House;
-import net.clayrobot.delivery.entities.Player;
+import net.clayrobot.delivery.entities.ClawDrone;
 
 public class TestGrounds extends Level {
 	private final int GROUND_HEIGHT = 8;
@@ -36,10 +36,10 @@ public class TestGrounds extends Level {
 	public void start() {
 		super.start();
 		House.spawn(4);
-		Player.spawn.x = 25;
-		Player.spawn.y = GROUND_HEIGHT + 5;
-		Player.EnabledArmType = Player.ArmType.CLAW1;
-		player = new Player();
+		ClawDrone.spawn.x = 25;
+		ClawDrone.spawn.y = GROUND_HEIGHT + 5;
+		ClawDrone.EnabledArmType = ClawDrone.ArmType.RECTANGLE;
+		player = new ClawDrone();
 		Box.spawn(15, GROUND_HEIGHT, winningScore);
 	}
 	@Override

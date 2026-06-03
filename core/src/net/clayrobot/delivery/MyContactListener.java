@@ -9,7 +9,7 @@ import java.util.HashMap;
 import net.clayrobot.delivery.entities.Box;
 import net.clayrobot.delivery.entities.House;
 
-import static net.clayrobot.delivery.entities.Player.Arm;
+import static net.clayrobot.delivery.entities.ClawDrone.Arm;
 public class MyContactListener implements ContactListener {
 	private Object object1;
 	private Object object2;
