@@ -217,7 +217,7 @@ public class AutobahnDelivery extends Game {
 		//Meyrin.draw(fgBatch, "1", camera.viewportWidth / 2, camera.viewportHeight / 2);
 		stateTime += deltaTime;
 		overlaySprite.setTexture(overlayAnim.getKeyFrame(stateTime));
-		overlaySprite.draw(fgBatch);
+		// overlaySprite.draw(fgBatch);
 		fgBatch.end();
 		if (!isPaused) Gdx.graphics.requestRendering();
 	}

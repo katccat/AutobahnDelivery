@@ -22,26 +22,26 @@ import net.clayrobot.delivery.levels.Level;
 import com.badlogic.gdx.graphics.g2d.Animation;
 
 public class ClawDrone extends Entity {
-	private static final Texture idleTex = new Texture("drone/sketch_idle.png");
-	private static final Texture disabledTex = new Texture("drone/off.png");
+	private static final Texture idleTex = new Texture("drone/idle.png");
+	private static final Texture deadTex = new Texture("drone/off.png");
+	private final Sound helicopter = Gdx.audio.newSound(Gdx.files.internal("rotor2.wav"));
+	private final boolean ENABLE_ARMS = true;
 	private static final Texture[] flight_frames = {
-		new Texture("drone/sketch_fly.png"),
+		new Texture("drone/flight/1.png"),
+		new Texture("drone/flight/2.png"),
+		new Texture("drone/flight/3.png"),
+		new Texture("drone/flight/4.png"),
+		new Texture("drone/flight/5.png")
 	};
+	private float stateTime = 0;
 	private final Animation<Texture> anim;
 	private final Sprite droneSprite = new Sprite(idleTex);
-	private final Sound rotorSound = Gdx.audio.newSound(Gdx.files.internal("rotor2.wav"));
-	private final boolean ENABLE_ARMS = true;
-	
-	private final Sprite clawSprite = new Sprite(new Texture("drone/claw.png"));
-	private float stateTime = 0;
-	
-	
 	private final Body body;
 	private Body leftArm;
 	private Body rightArm;
 	private final FixtureDef fixtureDef = new FixtureDef();
-	private RevoluteJoint leftArmJoint;
-	private RevoluteJoint rightArmJoint;
+	private RevoluteJoint leftClaw;
+	private RevoluteJoint rightClaw;
 	public Vector2 position;
 	private float angle, workingAngle, sine, cosine, torque;
 	private final float CLAW_SPEED = 3;
@@ -53,8 +53,8 @@ public class ClawDrone extends Entity {
 	private final float THRUST_IMPULSE = 55;
 	private boolean alive = true;
 	private boolean gripping = false;
-	private boolean propelling = false;
 	private boolean AlreadyPropelling = false;
+	private boolean propelling = false;
 	private boolean clawing = false;
 	private boolean tiltingLeft = false;
 	private boolean tiltingRight = false;
@@ -156,11 +156,11 @@ public class ClawDrone extends Entity {
 		clawJointDef.upperAngle = (float) Math.toRadians(30);
 		clawJointDef.lowerAngle = (float) Math.toRadians(-45);
 		clawJointDef.initialize(body, leftArm, new Vector2(x - x_offset - 0.05f, y - 0.4f));
-		leftArmJoint = (RevoluteJoint) Level.world.createJoint(clawJointDef);
+		leftClaw = (RevoluteJoint) Level.world.createJoint(clawJointDef);
 		clawJointDef.upperAngle = (float) Math.toRadians(45);
 		clawJointDef.lowerAngle = (float) Math.toRadians(-30);
 		clawJointDef.initialize(body, rightArm, new Vector2(x + x_offset + 0.05f, y - 0.4f));
-		rightArmJoint = (RevoluteJoint) Level.world.createJoint(clawJointDef);
+		rightClaw = (RevoluteJoint) Level.world.createJoint(clawJointDef);
 	}
 	// these methods are called by an input processor
 	public void setPropelling(boolean propelling) {
@@ -229,7 +229,7 @@ public class ClawDrone extends Entity {
 		}
 		
 		if (propelling) {
-			if (!AlreadyPropelling) rotorSound.loop();
+			if (!AlreadyPropelling) helicopter.loop();
 			// x and y components multiplied by cosine/sine for direction and deltaTime for consistent speed regardless of framerate
 			impulseVector.x = THRUST_IMPULSE * cosine * deltaTime;
 			impulseVector.y = THRUST_IMPULSE * sine * deltaTime;
@@ -241,7 +241,7 @@ public class ClawDrone extends Entity {
 		}
 		else {
 			stateTime = 0;
-			rotorSound.stop();
+			helicopter.stop();
 			droneSprite.setTexture(idleTex);
 			AlreadyPropelling = false;
 		}
@@ -258,25 +258,25 @@ public class ClawDrone extends Entity {
 		if (ENABLE_ARMS) updateArms();
 	}
 	private void updateArms() {
-		torque = Math.max(leftArmJoint.getMotorTorque(1 / deltaTime), rightArmJoint.getMotorTorque(1 / deltaTime));
+		torque = Math.max(leftClaw.getMotorTorque(1 / deltaTime), rightClaw.getMotorTorque(1 / deltaTime));
 		if (clawing) {
-			leftArmJoint.setMotorSpeed(CLAW_SPEED);
-			rightArmJoint.setMotorSpeed(-CLAW_SPEED);
+			leftClaw.setMotorSpeed(CLAW_SPEED);
+			rightClaw.setMotorSpeed(-CLAW_SPEED);
 			if (Math.abs(torque) > GRIP_THRESHOLD) gripping = true; // arms experience feedback, so they know they are gripping something
 		}
 		else if (gripping && Math.abs(torque) > RELEASE_THRESHOLD) { // maintain zero motor speed as long as torque is above release threshold
-			leftArmJoint.setMotorSpeed(0);
-			rightArmJoint.setMotorSpeed(0);
+			leftClaw.setMotorSpeed(0);
+			rightClaw.setMotorSpeed(0);
 		}
 		else { 
 			if (gripping && autoClaw && holding != 0) { // if the player is holding something (and it is a box) and autoClaw is true
-				leftArmJoint.setMotorSpeed(CLAW_SPEED);
-				rightArmJoint.setMotorSpeed(-CLAW_SPEED);
+				leftClaw.setMotorSpeed(CLAW_SPEED);
+				rightClaw.setMotorSpeed(-CLAW_SPEED);
 			}
 			else { // if autoClaw is false and the box slips too much, the claws retract to their retracted position (like a claw machine)
 				gripping = false;
-				leftArmJoint.setMotorSpeed(-RETRACT_SPEED);
-				rightArmJoint.setMotorSpeed(RETRACT_SPEED);
+				leftClaw.setMotorSpeed(-RETRACT_SPEED);
+				rightClaw.setMotorSpeed(RETRACT_SPEED);
 			}
 		}
 	}
@@ -286,35 +286,19 @@ public class ClawDrone extends Entity {
 		boolean doUpdate = deltaTime > 0;
 		updateState(doUpdate);
 		if (doUpdate && alive) {
-			if (game.platform != ApplicationType.WebGL) rotorSound.resume();
+			if (game.platform != ApplicationType.WebGL) helicopter.resume();
 			update();
 		}
 		else if (AlreadyPropelling) {
-			rotorSound.pause();
+			helicopter.pause();
 			//AlreadyPropelling = false;
 		}
 		if (ENABLE_ARMS) {
-			//fillBody(rightArm, Color.LIME);
-			//fillBody(leftArm, Color.LIME);
+			fillBody(rightArm, Color.LIME);
+			fillBody(leftArm, Color.LIME);
 		}
 		updateState(false);
-		float texWidth = droneSprite.getTexture().getWidth();
-		float texHeight = droneSprite.getTexture().getHeight();
-		float aspect = texWidth / texHeight;
-		float targetHeight = 3.6f;
-		float targetWidth = targetHeight * aspect;
-		float clawScale = 2.5f;
-		clawSprite.setBounds(position.x - 1, position.y + 1, 0.15f * clawScale, 0.5f * clawScale);
-		//x - x_offset - 0.05f, y - 0.4f
-		clawSprite.setOriginCenter();
-		clawSprite.setRotation((float) Math.toDegrees(leftArm.getAngle()));
-		clawSprite.draw(game.batch);
-		clawSprite.setBounds(position.x + 1, position.y + 1, 0.15f * clawScale, 0.5f * clawScale);
-		//x - x_offset - 0.05f, y - 0.4f
-		clawSprite.setOriginCenter();
-		clawSprite.setRotation((float) Math.toDegrees(rightArm.getAngle()));
-		clawSprite.draw(game.batch);
-		droneSprite.setBounds(position.x - targetWidth / 2, position.y - targetHeight / 2, targetWidth, targetHeight);
+		droneSprite.setBounds(position.x - droneSprite.getWidth() / 2, position.y - droneSprite.getHeight() / 2, 4f, 2.48f);
 		droneSprite.setOriginCenter();
 		droneSprite.setRotation((float) Math.toDegrees(angle));
 		droneSprite.draw(game.batch);
@@ -329,16 +313,16 @@ public class ClawDrone extends Entity {
 	}
 	public void kill() {
 		alive = false;
-		droneSprite.setTexture(disabledTex);
+		droneSprite.setTexture(deadTex);
 		if (ENABLE_ARMS) {
-			leftArmJoint.enableMotor(false);
-			rightArmJoint.enableMotor(false);
+			leftClaw.enableMotor(false);
+			rightClaw.enableMotor(false);
 		} 
 	}
 	@Override
 	public void delete() {
-		rotorSound.stop();
-		rotorSound.dispose();
+		helicopter.stop();
+		helicopter.dispose();
 		Level.world.destroyBody(body);
 		if (ENABLE_ARMS) {
 			Level.world.destroyBody(leftArm);
@@ -347,7 +331,7 @@ public class ClawDrone extends Entity {
 	}
 	protected static void dispose() {
 		idleTex.dispose();
-		disabledTex.dispose();
+		deadTex.dispose();
 		for (Texture texture : flight_frames) {
 			texture.dispose();
 		}
